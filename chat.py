@@ -1,6 +1,7 @@
 from sleekxmpp import ClientXMPP
 from sleekxmpp.exceptions import IqError, IqTimeout
-import logging
+from sleekxmpp.xmlstream.stanzabase import ET, ElementBase
+from sleekxmpp.plugins.xep_0096 import stanza, File
 
 class RegisterBot(ClientXMPP):
 
@@ -30,39 +31,66 @@ class RegisterBot(ClientXMPP):
         try:
             resp.send(now=True)
             print("Account created for %s!" % self.boundjid)
-            log = logging.getLogger("my-logger")
-            log.info("Account created for %s!" % self.boundjid)
         except IqError as e:
             print("Could not register account: %s" %
-                    e.iq['error']['text'])
-            log.error("Could not register account: %s" %
                     e.iq['error']['text'])
             self.disconnect()
         except IqTimeout:
             print("No response from server.")
-            log.error("No response from server.")
             self.disconnect()
-class EchoBot(ClientXMPP):
 
+            
+class EchoBot(ClientXMPP):
+    
+    
     def __init__(self, jid, password):
         ClientXMPP.__init__(self, jid, password)
-        print("Creacion de eventos")
-        self.add_event_handler("session_start", self.start)
-        self.add_event_handler("message", self.handleMessage)
+        
+        self.add_event_handler('session_start', self.session_start)
+        self.add_event_handler('message', self.message)
 
+        self.register_plugin('xep_0030') # Service Discovery
+        self.register_plugin('xep_0199') # XMPP Ping
+        self.register_plugin('xep_0004') # Data forms
+        self.register_plugin('xep_0077') # In-band Registration
+        self.register_plugin('xep_0045') # Mulit-User Chat (MUC)
+        self.register_plugin('xep_0096') # File transfer
+        
+    def session_start(self, event):
+        self.send_presence(pshow='chat', pstatus='sito')
+        roster = self.get_roster()
+        print(roster)
+        
     def start(self, event):
         print("demostrando presencia")
         self.send_presence(pstatus = "Send me a message")
-        
-    def run(self):
-        print("connectandome")
-        self.connect()
-        self.get_roster()
-        self.process(threaded=False)
+    
+    def SendMessageTo(self, jid, message):
+        self.send_message(mto=jid, mbody=message, mtype='chat')
+    
+    def message(self, msg):
+        print(msg)
 
-    def handleMessage(self,message):    
-        print("mandando mensaje")
-        self.sendMessage(message["jid"],message["message"])
+
+    def Login(self):
+        success = False
+        if self.connect():
+            self.process()
+            success = True
+            print('Login exitoso')
+        else:
+            print('Ha ocurrido un error')
+
+        return success
+
+
+
+    def AddUser(self, jid):
+        self.send_presence_subscription(pto=jid)
+    
+    def Roster(self):
+        roster = self.get_roster()
+        print(roster)
         
         
 
@@ -70,15 +98,17 @@ class EchoBot(ClientXMPP):
 if __name__ == '__main__':
 
     domain = '@redes2020.xyz'
-    username = 'asd1234'
-    password = 'asd1234'
+    username = ''
+    password = ''
     opcion = 9
     
     while opcion != 0:
-
-        opcion = int(input("Ingrese la opcion"))
+        print("1. Crear Cuenta.  2. Iniciar sesion.   3.Eliminar la cuenta del servidor  0. Salir")
+        opcion = int(input("Ingrese la opcion: "))
 
         if opcion == 1:
+            username = input("Ingrese el usuario: ")
+            password = input("Ingrese la contraseña: ")
             xmpp = RegisterBot(username + domain, password)
             if xmpp.connect():
                 xmpp.process(block=True)
@@ -86,9 +116,36 @@ if __name__ == '__main__':
             else:
                 print("Unable to connect.")
         if opcion == 2:
-            print("opcion 2 jeje")
+            option = 100
+            username = input("Ingrese el usuario: ")
+            password = input("Ingrese la contraseña: ")
+
             bot = EchoBot(username + domain, password)
-            bot.run()
+     
+            if bot.Login():
+                print("Hice login")
+            
+            while option != 0:
+                print("1.obtener roster  \n2. Agregar un usuario a los contactos. \n3. Mostrar detalles de contacto de un usuario. \n4.Comunicación 1 a 1 con cualquier usuario / contacto.")
+
+                option = int(input("Ingrese la opcion: "))
+                if option == 1:
+                    print("opcion 1")
+                    bot.Roster()
+                if option == 2:
+                    print("opcion 2")
+                    user = input("Ingrese el Ingrese el jid:")
+                    bot.AddUser(user)
+
+                if option == 4:
+                    user  = input("Ingrese el Ingrese el jid:")
+                    msj = input("Ingrese el Ingrese el mensaje:")
+                    bot.SendMessageTo(user,msj)
+                if option == 0:
+                    print('fuera')
+                    xmpp.disconnect()
+
+
         if opcion == 0:
             print('fuera')
             xmpp.disconnect()

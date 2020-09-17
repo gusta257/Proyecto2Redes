@@ -59,7 +59,7 @@ class EchoBot(ClientXMPP):
     def session_start(self, event):
         self.send_presence(pshow='chat', pstatus='sito')
         roster = self.get_roster()
-        print(roster)
+        #print(roster)
         
     def start(self, event):
         print("demostrando presencia")
@@ -69,7 +69,9 @@ class EchoBot(ClientXMPP):
         self.send_message(mto=jid, mbody=message, mtype='chat')
     
     def message(self, msg):
-        print(msg)
+        print("Tipo de mensaje",msg['type'])
+        print("De",msg['from'])
+        print(msg['body'])
 
 
     def Login(self):
@@ -90,7 +92,85 @@ class EchoBot(ClientXMPP):
     
     def Roster(self):
         roster = self.get_roster()
+        
         print(roster)
+
+    def GetUsers(self):
+        
+        iq = self.Iq()
+        iq['type'] = 'set'
+        iq['id'] = 'search_result'
+        iq['to'] = 'search.redes2020.xyz'
+
+        item = ET.fromstring("<query xmlns='jabber:iq:search'> \
+                                <x xmlns='jabber:x:data' type='submit'> \
+                                    <field type='hidden' var='FORM_TYPE'> \
+                                        <value>jabber:iq:search</value> \
+                                    </field> \
+                                    <field var='Username'> \
+                                        <value>1</value> \
+                                    </field> \
+                                    <field var='search'> \
+                                        <value>*</value> \
+                                    </field> \
+                                </x> \
+                              </query>")
+        iq.append(item)
+        res = iq.send()
+        
+        data = []
+        temp = []
+        cont = 0
+        for i in res.findall('.//{jabber:x:data}value'):
+            cont += 1
+            txt = ''
+            if i.text != None:
+                temp.append(i.text)
+
+            if cont == 4:
+                cont = 0
+                data.append(temp)
+                temp = []
+
+        return data
+
+    def GetUser(self, username):
+        iq = self.Iq()
+        iq['type'] = 'set'
+        iq['id'] = 'search_result'
+        iq['to'] = 'search.redes2020.xyz'
+
+        item = ET.fromstring("<query xmlns='jabber:iq:search'> \
+                                <x xmlns='jabber:x:data' type='submit'> \
+                                    <field type='hidden' var='FORM_TYPE'> \
+                                        <value>jabber:iq:search</value> \
+                                    </field> \
+                                    <field var='Username'> \
+                                        <value>1</value> \
+                                    </field> \
+                                    <field var='search'> \
+                                        <value>" + username + "</value> \
+                                    </field> \
+                                </x> \
+                              </query>")
+        iq.append(item)
+        res = iq.send()
+        
+        data = []
+        temp = []
+        cont = 0
+        for i in res.findall('.//{jabber:x:data}value'):
+            cont += 1
+            txt = ''
+            if i.text != None:
+                temp.append(i.text)
+
+            if cont == 4:
+                cont = 0
+                data.append(temp)
+                temp = []
+
+        return data
         
         
 
@@ -126,7 +206,7 @@ if __name__ == '__main__':
                 print("Hice login")
             
             while option != 0:
-                print("1.obtener roster  \n2. Agregar un usuario a los contactos. \n3. Mostrar detalles de contacto de un usuario. \n4.Comunicación 1 a 1 con cualquier usuario / contacto.")
+                print("1. Obtener roster  \n2. Agregar un usuario a los contactos. \n4. Mandar mensaje.")
 
                 option = int(input("Ingrese la opcion: "))
                 if option == 1:
@@ -141,14 +221,27 @@ if __name__ == '__main__':
                     user  = input("Ingrese el Ingrese el jid:")
                     msj = input("Ingrese el Ingrese el mensaje:")
                     bot.SendMessageTo(user,msj)
+
+                if option == 5:
+                    server_users = bot.GetUsers()
+                    print("USUARIOS REGISTRADOS EN EL SERVER:")
+                    for i in server_users:
+                        print ("*",i)
+
+                if option == 6:
+                    specific_user = input("Ingrese el usuario a buscar")
+                    user = bot.GetUser(specific_user)
+                    for i in user:
+                        print ("*",i[0])
+                
                 if option == 0:
-                    print('fuera')
-                    xmpp.disconnect()
+                    print('Cerrando Sesion')
+                    bot.disconnect()
 
 
         if opcion == 0:
             print('fuera')
-            xmpp.disconnect()
+
             
     
     

@@ -49,9 +49,8 @@ class Cliente(ClientXMPP):
         self.yo = jid
         self.add_event_handler('session_start', self.session_start)
         self.add_event_handler('message', self.message)
-        self.add_event_handler("got_offline", self.got_offline)
         self.add_event_handler("groupchat_message", self.notificacionMencion)
-        self.add_event_handler("muc::f1@conference.redes2020.xyz::got_online" , self.muc_online)
+        
         self.presences_received = threading.Event()
 
         self.register_plugin('xep_0030') # Service Discovery
@@ -66,30 +65,28 @@ class Cliente(ClientXMPP):
         self.show = 'chat'
         roster = self.get_roster()
         #print(roster)
-    
-    def got_offline(self, presence):        
-        if self.jid not in str(presence['from']):
-            u = self.jid_to_user(str(presence['from']))
-            print('-- %s está en offline -- ' %(u))
 
           
 
     def muc_online(self, presence):
         if presence['muc']['nick'] != self.nick:
-            self.send_message(mto=presence['from'].bare,
-                            mbody="Hello, %s %s" % (presence['muc']['role'],
-                                                    presence['muc']['nick']),
-                            mtype='groupchat')
+            who = presence['from'].bare
+            index2 = who.find('@conference')
+            print("\n")
+            print("*************************NOTIFICACION**************************")
+            print(presence['muc']['nick'],"ha entrado al grupo",who[:index2])
+            print("***************************************************************")
+        
 
     def notificacionMencion(self, msg):
         if msg['mucnick'] != self.nick and self.nick in msg['body']:
             who = str(msg['from'])
             index2 = who.find('@conference')
-            print('\n')
+            
             print("*************************NOTIFICACION**************************")
             print(msg['mucnick'],"te ha mencionado en el grupo",who[:index2])
             print("***************************************************************")
-            print('\n')
+            
 
     def mandarPresence(self, show, status):
         print('\n')
@@ -108,27 +105,36 @@ class Cliente(ClientXMPP):
             self.send_presence(pshow=self.show, pstatus = "Desconectado")
 
     def message(self, msg):
-        print("\n")
-        print("*"*40)
+        
         if(msg['type']=='chat'):
+            print("\n")
+            print("*"*40)
             who = str(msg['from'])
             index = who.find('/') 
             
             print("Mensaje privado")
             print("De:",who[:index])
             print("Mensaje:",msg['body'])
-            
+            print("*"*40)
+
         elif(msg['type']=='groupchat'):
             who = str(msg['from'])
             index = who.find('/') 
             index2 = who.find('@conference')
 
-            print("Grupo:",who[:index2])
-            print("De:",who[index+1:])
-            print("Mensaje:",msg['body'])
+            if who[index+1:] != self.nick:
 
-        print("*"*40)
-        print('\n')
+                print("\n")
+                print("*"*40)
+                
+
+                print("Grupo:",who[:index2])
+                print("De:",who[index+1:])
+                print("Mensaje:",msg['body'])
+                print("*"*40)
+
+        
+        
 
     def Login(self):
         success = False
@@ -211,13 +217,15 @@ class Cliente(ClientXMPP):
         self.nick = nickname
         status = "Bienvenido"
         self.room = room+"@conference.redes2020.xyz"
-        self.plugin['xep_0045'].joinMUC(room+"@conference.redes2020.xyz", nickname, pstatus=status, pfrom=self.boundjid.full, wait=True)
+        self.plugin['xep_0045'].joinMUC(room+"@conference.redes2020.xyz", nickname, pstatus=status, pfrom=self.boundjid.full)
         self.plugin['xep_0045'].setAffiliation(room+"@conference.redes2020.xyz", self.boundjid.full, affiliation='owner')
         self.plugin['xep_0045'].configureRoom(room+"@conference.redes2020.xyz", ifrom = self.boundjid.full)
+        self.add_event_handler("muc::"+room+"@conference.redes2020.xyz::got_online" , self.muc_online)
     
     def Rooms(self, room, nickname):
         self.nick = nickname
-        self.plugin['xep_0045'].joinMUC(room+"@conference.redes2020.xyz", nickname, wait=True)
+        self.plugin['xep_0045'].joinMUC(room+"@conference.redes2020.xyz", nickname)
+        self.add_event_handler("muc::"+room+"@conference.redes2020.xyz::got_online" , self.muc_online)
 
     def GetUsers(self):
         
@@ -332,7 +340,7 @@ if __name__ == '__main__':
                 print("Hice login")
             
             while option != 0:
-                print("0. Deconectarse\n1. Agregar nuevo Status\n2. Agregar un usuario a los contactos.\n3. Eliminar mi cuenta.\n4. Mandar mensaje.\n5. Mostrar todos los usuarios registrados\n6. Buscar un usuario en especifico\n7. Ingresar a room\n8. Mandar mensaje grupal\n9. Mostrar usuarios agregados\n10. Crear un room")
+                print("0. Desconectarse\n1. Agregar nuevo Status\n2. Agregar un usuario a los contactos.\n3. Eliminar mi cuenta.\n4. Mandar mensaje.\n5. Mostrar todos los usuarios registrados\n6. Buscar un usuario en especifico\n7. Ingresar a room\n8. Mandar mensaje grupal\n9. Mostrar usuarios agregados\n10. Crear un room")
 
                 option = int(input("Ingrese la opcion: "))
                 if option == 2:

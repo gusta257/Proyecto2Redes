@@ -4,7 +4,7 @@ from sleekxmpp.xmlstream.stanzabase import ET, ElementBase
 import threading
 from sleekxmpp.plugins.xep_0096 import stanza, File
 
-class RegisterBot(ClientXMPP):
+class Registro(ClientXMPP):
 
     def __init__(self, jid, password):
         ClientXMPP.__init__(self, jid, password)
@@ -41,15 +41,17 @@ class RegisterBot(ClientXMPP):
             self.disconnect()
 
             
-class EchoBot(ClientXMPP):
+class Cliente(ClientXMPP):
     
     
     def __init__(self, jid, password):
         ClientXMPP.__init__(self, jid, password)
-        
+        self.yo = jid
         self.add_event_handler('session_start', self.session_start)
         self.add_event_handler('message', self.message)
-
+        self.add_event_handler("got_offline", self.got_offline)
+        self.add_event_handler("groupchat_message", self.notificacionMencion)
+        self.add_event_handler("muc::f1@conference.redes2020.xyz::got_online" , self.muc_online)
         self.presences_received = threading.Event()
 
         self.register_plugin('xep_0030') # Service Discovery
@@ -61,24 +63,72 @@ class EchoBot(ClientXMPP):
         
     def session_start(self, event):
         self.send_presence(pshow='chat', pstatus='Disponible')
+        self.show = 'chat'
         roster = self.get_roster()
         #print(roster)
-        
+    
+    def got_offline(self, presence):        
+        if self.jid not in str(presence['from']):
+            u = self.jid_to_user(str(presence['from']))
+            print('-- %s está en offline -- ' %(u))
+
+          
+
+    def muc_online(self, presence):
+        if presence['muc']['nick'] != self.nick:
+            self.send_message(mto=presence['from'].bare,
+                            mbody="Hello, %s %s" % (presence['muc']['role'],
+                                                    presence['muc']['nick']),
+                            mtype='groupchat')
+
+    def notificacionMencion(self, msg):
+        if msg['mucnick'] != self.nick and self.nick in msg['body']:
+            who = str(msg['from'])
+            index2 = who.find('@conference')
+            print('\n')
+            print("*************************NOTIFICACION**************************")
+            print(msg['mucnick'],"te ha mencionado en el grupo",who[:index2])
+            print("***************************************************************")
+            print('\n')
+
     def mandarPresence(self, show, status):
-        print("demostrando presencia")
+        print('\n')
+        print("Status cambiado")
+        print('\n')
         self.send_presence(pshow=show, pstatus = status)
     
     def SendMessageTo(self, jid, message):
-        self.send_message(mto=jid, mbody=message, mtype='chat')
+        self.send_message(mto=jid+"@redes2020.xyz", mbody=message, mtype='chat')
 
     def SendMessageRoom(self, room, message):
-        self.send_message(mto=room, mbody=message, mtype='groupchat')
+        self.send_message(mto=room+"@conference.redes2020.xyz", mbody=message, mtype='groupchat')
     
-    def message(self, msg):
-        print("Tipo de mensaje",msg['type'])
-        print("De",msg['from'])
-        print(msg['body'])
+    def logOut(self):
+            self.show = 'dnd'
+            self.send_presence(pshow=self.show, pstatus = "Desconectado")
 
+    def message(self, msg):
+        print("\n")
+        print("*"*40)
+        if(msg['type']=='chat'):
+            who = str(msg['from'])
+            index = who.find('/') 
+            
+            print("Mensaje privado")
+            print("De:",who[:index])
+            print("Mensaje:",msg['body'])
+            
+        elif(msg['type']=='groupchat'):
+            who = str(msg['from'])
+            index = who.find('/') 
+            index2 = who.find('@conference')
+
+            print("Grupo:",who[:index2])
+            print("De:",who[index+1:])
+            print("Mensaje:",msg['body'])
+
+        print("*"*40)
+        print('\n')
 
     def Login(self):
         success = False
@@ -101,7 +151,7 @@ class EchoBot(ClientXMPP):
         res = iq.send()
         print(res)
 
-
+    
     def misUsers(self):
         try:
             self.get_roster()
@@ -115,27 +165,28 @@ class EchoBot(ClientXMPP):
         print('Waiting for presence updates...\n')
         self.presences_received.wait(5)
 
-        print('Roster for %s' % self.boundjid.bare)
+        print('  Amigos de %s' % self.boundjid.bare)
         groups = self.client_roster.groups()
         for group in groups:
-            print('\n%s' % group)
             print('-' * 72)
             for jid in groups[group]:
                 sub = self.client_roster[jid]['subscription']
                 name = self.client_roster[jid]['name']
-                if self.client_roster[jid]['name']:
-                    print(' %s (%s) [%s]' % (name, jid, sub))
-                else:
-                    print(' %s [%s]' % (jid, sub))
+                if (jid != self.yo):
+                    print(' * User: %s' % (jid))
 
                 connections = self.client_roster.presence(jid)
                 for res, pres in connections.items():
-                    show = 'available'
-                    if pres['show']:
+                    show = self.show
+                    if pres['show'] and jid != self.yo:
                         show = pres['show']
-                    print('   - %s (%s)' % (res, show))
-                    if pres['status']:
-                        print('       %s' % pres['status'])
+                    if jid != self.yo:
+                        print(' - Estado: (%s)' % (show))
+                    if pres['status'] and jid != self.yo and len(str(pres['status'])) > 0:
+                        print(' - Status: %s' % pres['status'])
+                print('-' * 72)
+                print
+                    
 
 
     def wait_for_presences(self, pres):
@@ -149,14 +200,23 @@ class EchoBot(ClientXMPP):
             self.presences_received.clear()
 
     def AddUser(self, jid):
-        self.send_presence_subscription(pto=jid)
+        self.send_presence_subscription(pto=jid+"@redes2020.xyz")
     
     def Roster(self):
         roster = self.get_roster()
         
         print(roster)
 
+    def CreateRooms(self, room, nickname):
+        self.nick = nickname
+        status = "Bienvenido"
+        self.room = room+"@conference.redes2020.xyz"
+        self.plugin['xep_0045'].joinMUC(room+"@conference.redes2020.xyz", nickname, pstatus=status, pfrom=self.boundjid.full, wait=True)
+        self.plugin['xep_0045'].setAffiliation(room+"@conference.redes2020.xyz", self.boundjid.full, affiliation='owner')
+        self.plugin['xep_0045'].configureRoom(room+"@conference.redes2020.xyz", ifrom = self.boundjid.full)
+    
     def Rooms(self, room, nickname):
+        self.nick = nickname
         self.plugin['xep_0045'].joinMUC(room+"@conference.redes2020.xyz", nickname, wait=True)
 
     def GetUsers(self):
@@ -235,6 +295,8 @@ class EchoBot(ClientXMPP):
                 temp = []
 
         return data
+
+        
         
         
 
@@ -253,7 +315,7 @@ if __name__ == '__main__':
         if opcion == 1:
             username = input("Ingrese el usuario: ")
             password = input("Ingrese la contraseña: ")
-            xmpp = RegisterBot(username + domain, password)
+            xmpp = Registro(username + domain, password)
             if xmpp.connect():
                 xmpp.process(block=True)
                 print("Done")
@@ -264,18 +326,15 @@ if __name__ == '__main__':
             username = input("Ingrese el usuario: ")
             password = input("Ingrese la contraseña: ")
 
-            bot = EchoBot(username + domain, password)
+            bot = Cliente(username + domain, password)
      
             if bot.Login():
                 print("Hice login")
             
             while option != 0:
-                print("0. Deconectarse\n1. Obtener roster\n2. Agregar un usuario a los contactos.\n3. Eliminar mi cuenta.\n4. Mandar mensaje.\n5. Mostrar todos los usuarios registrados\n6. Buscar un usuario en especifico\n7. Ingresar o crear room")
+                print("0. Deconectarse\n1. Agregar nuevo Status\n2. Agregar un usuario a los contactos.\n3. Eliminar mi cuenta.\n4. Mandar mensaje.\n5. Mostrar todos los usuarios registrados\n6. Buscar un usuario en especifico\n7. Ingresar a room\n8. Mandar mensaje grupal\n9. Mostrar usuarios agregados\n10. Crear un room")
 
                 option = int(input("Ingrese la opcion: "))
-                if option == 1:
-                    print("opcion 1")
-                    bot.Roster()
                 if option == 2:
                     print("opcion 2")
                     user = input("Ingrese el Ingrese el jid:")
@@ -304,19 +363,21 @@ if __name__ == '__main__':
                     bot.Rooms(cuarto, nick)
                 if option ==8:
                     cuarto = input("Ingrese el room a escribir: ")
-                    mensaje = input("igrese mensaje ")
-                    print("*"*20)
-                    print("El mensaje",mensaje,"se mandara al cuarto",cuarto)
-                    print("*"*20)
+                    mensaje = input("Ingrese mensaje: ")
                     bot.SendMessageRoom(cuarto, mensaje)
                 if option ==9:
                     bot.misUsers()
-                if option==10:
+                if option==1:
                     status = input("Agrega tu nuevo status: ")
                     show = input('Ingresa tu show:\nchat\naway\nxa\ndnd\n')
                     bot.mandarPresence(show,status)
+                if option==10:
+                    cuarto = input("Ingrese el nombre del nuevo room: ")
+                    nick = input("Ingrese su nickname para este room: ")
+                    bot.CreateRooms(cuarto, nick)
                 if option == 0:
                     print('Desconectandome')
+                    bot.logOut()
                     bot.disconnect()
 
 
@@ -326,3 +387,10 @@ if __name__ == '__main__':
             
     
     
+'''
+chat Announces that you are available for, and actively seeking, conversation (perhapsyou’re feeling especially sociable).
+away Indicates that you are gone from your IM client, computer, or device for a shortperiod of time; this state is often triggered without human intervention through afeature known as auto-away, commonly found in many IM clients.
+xa Indicates that you are gone for a longer period of time (xa is shorthand for “eX-tended Away”); your IM client can also automatically generate this state.
+dnd Announces that you are busy and don’t want to be interrupted right now (dnd isshorthand for “do not disturb”).
+
+'''

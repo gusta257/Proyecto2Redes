@@ -1,6 +1,7 @@
 # Xmpp Client :flushed:
  
 Project #2 for "Redes" class.
+Gustavo De Leon 17085
 
 ## Getting Started  
 
@@ -111,3 +112,14 @@ For this projet you will need the following requisites:
      - If you receive a private message
      - If someone joins to a room that you are in
      - If someone says your name in a room message
+   
+## Documentation and Special Thanks to:
+- https://sleekxmpp.readthedocs.io/en/latest/getting_started/muc.html
+- https://github.com/fritzy/SleekXMPP/blob/develop/examples/roster_browser.py
+- https://github.com/fritzy/SleekXMPP/blob/develop/examples/echo_client.py
+- https://xmpp.org/extensions/xep-0045.html#createroom
+- XMPP - The definitive guide
+- Dieter de Wit
+- Vinicio Paz
+And every friend who had the same problem as me and helped me to fix it
+     

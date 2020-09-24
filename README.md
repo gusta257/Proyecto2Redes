@@ -58,35 +58,30 @@ For this projet you will need the following requisites:
 - Log out.  
    - Press number 0 
      - This will return you to the previous menu.
-- Delete my account.  
-   - Press number 3
-     - This will return you to the previous menu and delete your account.
-- Show all users.
-   - Press number 5
-     - This will print you all the users registered in redes2020.xyz.
-- Show your contacts
-   - Press number 9
-     - This will print you all the users that you have in your roster and their status.
+- Establish presence.  
+   - Press number 1
+     - This will ask you for your new status, you can put what ever you want
+     - This will ask you for your new status, you can put what ever you want
 - Add a new contact.  
    - Press number 2
      - This will ask you for the jid of the user.
      - It is not necessary to write the server extension "@redes2020.xyz"
-- Show a specific user. 
-   - Press number 6
-     - This will ask you for the jid of the user and will print everyone who has that jid.
-     - It is not necessary to write the complete jid to find the user.
-     - It is not necessary to write the server extension "@redes2020.xyz"
+- Delete my account.  
+   - Press number 3
+     - This will return you to the previous menu and delete your account.
 - Send message to a user.  
    - Press number 4
      - This will ask you for the jid of the user and will print everyone who has that jid.
      - It is not necessary to write the server extension "@redes2020.xyz"
      - Next you have to send your message
-- Create a room.
-   - Press number 10
-     - This will ask you for the name of the new room.
-     - It is not necessary to write the server extension "@conference.redes2020.xyz".
-     - Next you have to assign you you nickname.
-     - You will be the owner of the group.
+- Show all users.
+   - Press number 5
+     - This will print you all the users registered in redes2020.xyz.
+- Show a specific user. 
+   - Press number 6
+     - This will ask you for the jid of the user and will print everyone who has that jid.
+     - It is not necessary to write the complete jid to find the user.
+     - It is not necessary to write the server extension "@redes2020.xyz"
 - Join to a room.
    - Press number 7
      - This will ask you for the room's name
@@ -97,16 +92,22 @@ For this projet you will need the following requisites:
      - This will ask you for the room's name
      - It is not necessary to write the server extension "@conference.redes2020.xyz".
      - Next you have to send your message
-- Establish presence.  
-   - Press number 1
-     - This will ask you for your new status, you can put what ever you want
-     - This will ask you for your new status, you can put what ever you want
+- Show your contacts
+   - Press number 9
+     - This will print you all the users that you have in your roster and their status.
+- Create a room.
+   - Press number 10
+     - This will ask you for the name of the new room.
+     - It is not necessary to write the server extension "@conference.redes2020.xyz".
+     - Next you have to assign you you nickname.
+     - You will be the owner of the group.
+- Send .png files.  
+   - Press number 11
+     - You will send the png image that is load in this repository called **a.png**
+   -You can receive png files too if they are decoded in base64.
+   
 - Get notifications.  
    - This will happen in the next cases:
      - If you receive a private message
      - If someone joins to a room that you are in
      - If someone says your name in a room message
-- Send .png files.  
-   - Press number 11
-     - You will send the png image that is load in this repository called **a.png**
-   -You can receive png files too.

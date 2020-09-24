@@ -427,11 +427,3 @@ if __name__ == '__main__':
 
             
     
-    
-'''
-chat Announces that you are available for, and actively seeking, conversation (perhapsyou’re feeling especially sociable).
-away Indicates that you are gone from your IM client, computer, or device for a shortperiod of time; this state is often triggered without human intervention through afeature known as auto-away, commonly found in many IM clients.
-xa Indicates that you are gone for a longer period of time (xa is shorthand for “eX-tended Away”); your IM client can also automatically generate this state.
-dnd Announces that you are busy and don’t want to be interrupted right now (dnd isshorthand for “do not disturb”).
-
-'''

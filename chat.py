@@ -188,7 +188,7 @@ class Cliente(ClientXMPP):
             print('Error: %s' % err.iq['error']['condition'])
         except IqTimeout:
             print('Error: Request timed out')
-        self.send_presence()
+        #self.send_presence()
 
 
         print('Obteniendo Informacion...\n')

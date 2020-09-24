@@ -6,13 +6,11 @@ from sleekxmpp.plugins.xep_0096 import stanza, File
 import os
 import base64
 import random
-
-
 import pathlib
 
-
+# CLASE PARA REGISTRAR UN USUARIO
 class Registro(ClientXMPP):
-
+    #INIT CON HANDLERS Y PLUGINS NECESARIOS
     def __init__(self, jid, password):
         ClientXMPP.__init__(self, jid, password)
 
@@ -47,7 +45,7 @@ class Registro(ClientXMPP):
             print("No response from server.")
             self.disconnect()
 
-            
+#CLASE DE CLIENTE 
 class Cliente(ClientXMPP):
     
     
@@ -66,7 +64,7 @@ class Cliente(ClientXMPP):
         self.register_plugin('xep_0077') # In-band Registration
         self.register_plugin('xep_0045') # Mulit-User Chat (MUC)
         self.register_plugin('xep_0096') # File transfer
-        
+    #INICIO DE SESION
     def session_start(self, event):
         self.send_presence(pshow='chat', pstatus='Disponible')
         self.show = 'chat'
@@ -74,7 +72,7 @@ class Cliente(ClientXMPP):
         #print(roster)
 
           
-
+    #NOTIFICACION DE ALGUIEN ENTRANDO A UN GRUPO
     def muc_online(self, presence):
         if presence['muc']['nick'] != self.nick:
             who = presence['from'].bare
@@ -84,7 +82,7 @@ class Cliente(ClientXMPP):
             print(presence['muc']['nick'],"esta en el grupo",who[:index2])
             print("***************************************************************")
         
-
+    #NOTIFICACION DE ALGUIEN MENCIONANDOME
     def notificacionMencion(self, msg):
         if msg['mucnick'] != self.nick and self.nick in msg['body']:
             who = str(msg['from'])
@@ -94,16 +92,16 @@ class Cliente(ClientXMPP):
             print(msg['mucnick'],"te ha mencionado en el grupo",who[:index2])
             print("***************************************************************")
             
-
+    #MANDANDO NOTIFICACION DE PRESENCIA ASI COMO CAMBIANDOLA
     def mandarPresence(self, show, status):
         print('\n')
         print("Status cambiado")
         print('\n')
         self.send_presence(pshow=show, pstatus = status)
-    
+    #MANDANDO MENSAJE PRIVADO
     def SendMessageTo(self, jid, message):
         self.send_message(mto=jid+"@redes2020.xyz", mbody=message, mtype='chat')
-
+    #MANDANDO MENSAJE A ROOM
     def SendMessageRoom(self, room, message):
         room = room.replace(" ", "")
         try:
@@ -111,11 +109,11 @@ class Cliente(ClientXMPP):
         except:
             print("ERROR")
 
-
+    #LOGOUT
     def logOut(self):
             self.show = 'dnd'
             self.send_presence(pshow=self.show, pstatus = "Desconectado")
-
+    #HANDLER DEL MENSAJE
     def message(self, msg):
         
         if(msg['type']=='chat' and msg['subject'] !='send_file'):
@@ -158,7 +156,7 @@ class Cliente(ClientXMPP):
             with open(name,"wb") as f:
                 f.write(file_)
         
-
+    #METODO DE LOGIN
     def Login(self):
         success = False
         if self.connect():
@@ -169,7 +167,7 @@ class Cliente(ClientXMPP):
             print('Ha ocurrido un error')
 
         return success
-
+    #ELIMINAR MI CUENTA
     def Unregister(self):
         
         iq = self.make_iq_set(ito='redes2020.xyz', ifrom=self.boundjid.user)
@@ -180,7 +178,7 @@ class Cliente(ClientXMPP):
         res = iq.send()
         print(res['type'])
 
-    
+    #MIS CONTACTOS
     def misUsers(self):
         try:
             self.get_roster()
@@ -223,7 +221,7 @@ class Cliente(ClientXMPP):
                
                     
 
-
+    #RECIBIENDO PRESENCIAS
     def wait_for_presences(self, pres):
         """
         Track how many roster entries have received presence updates.
@@ -233,15 +231,15 @@ class Cliente(ClientXMPP):
             self.presences_received.set()
         else:
             self.presences_received.clear()
-
+    #AGREGANDO USUARIO
     def AddUser(self, jid):
         self.send_presence_subscription(pto=jid+"@redes2020.xyz")
-    
+    #VER MI ROSTER
     def Roster(self):
         roster = self.get_roster()
         
         print(roster)
-
+    #CREAR ROOM
     def CreateRooms(self, room, nickname):
         self.nick = nickname
         status = "Bienvenido"
@@ -250,12 +248,12 @@ class Cliente(ClientXMPP):
         self.plugin['xep_0045'].setAffiliation(room+"@conference.redes2020.xyz", self.boundjid.full, affiliation='owner')
         self.plugin['xep_0045'].configureRoom(room+"@conference.redes2020.xyz", ifrom = self.boundjid.full)
         self.add_event_handler("muc::"+room+"@conference.redes2020.xyz::got_online" , self.muc_online)
-    
+    #UNIRSE A ROOM
     def Rooms(self, room, nickname):
         self.nick = nickname
         self.plugin['xep_0045'].joinMUC(room+"@conference.redes2020.xyz", nickname)
         self.add_event_handler("muc::"+room+"@conference.redes2020.xyz::got_online" , self.muc_online)
-
+    #OBTENER TODOS LOS USUARIOS
     def GetUsers(self):
         
         iq = self.Iq()
@@ -294,13 +292,13 @@ class Cliente(ClientXMPP):
                 temp = []
 
         return data
-
+    #MANDAR ARCHIVO PNG
     def SendFile(self, path, to):
         with open(path, 'rb') as img:
             file_ = base64.b64encode(img.read()).decode('utf-8')
         self.send_message(mto = to+"@redes2020.xyz", mbody=file_, msubject='send_file', mtype='chat')
 
-
+    #BOBTENER UN USUARIO EN ESPECIFICO
     def GetUser(self, username):
         iq = self.Iq()
         iq['type'] = 'set'
@@ -343,7 +341,7 @@ class Cliente(ClientXMPP):
         
         
 
-    
+#MAIN DEL PROFRAMA
 if __name__ == '__main__':
 
     domain = '@redes2020.xyz'

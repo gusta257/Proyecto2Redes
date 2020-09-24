@@ -62,7 +62,7 @@ For this projet you will need the following requisites:
 - Establish presence.  
    - Press number 1
      - This will ask you for your new status, you can put what ever you want
-     - This will ask you for your new status, you can put what ever you want
+     - This will ask you for your new status, you can chat, dnd, xa, away.
 - Add a new contact.  
    - Press number 2
      - This will ask you for the jid of the user.

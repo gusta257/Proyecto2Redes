@@ -7,6 +7,10 @@ import os
 import base64
 import random
 
+
+import pathlib
+
+
 class Registro(ClientXMPP):
 
     def __init__(self, jid, password):
@@ -371,7 +375,7 @@ if __name__ == '__main__':
                 print("Hice login")
             
             while option != '0':
-                print("0. Desconectarse\n1. Agregar nuevo Status\n2. Agregar un usuario a los contactos.\n3. Eliminar mi cuenta.\n4. Mandar mensaje.\n5. Mostrar todos los usuarios registrados\n6. Buscar un usuario en especifico\n7. Ingresar a room\n8. Mandar mensaje grupal\n9. Mostrar usuarios agregados\n10. Crear un room")
+                print("0. Desconectarse\n1. Agregar nuevo Status\n2. Agregar un usuario a los contactos.\n3. Eliminar mi cuenta.\n4. Mandar mensaje.\n5. Mostrar todos los usuarios registrados\n6. Buscar un usuario en especifico\n7. Ingresar a room\n8. Mandar mensaje grupal\n9. Mostrar usuarios agregados\n10. Crear un room\n11.Manda una imagen png")
 
                 option = input("Ingrese la opcion: ")
                 if option == '2':
@@ -416,8 +420,10 @@ if __name__ == '__main__':
                     bot.CreateRooms(cuarto, nick)
                 if option == '11':
                     to = input("Ingrese el jid:")
-                    path = os.path.join(os.path.expanduser('~'), 'Documents', 'python', 'a.png')
+                    path = pathlib.Path().absolute()
+                    path = str(path)+"/a.png"
                     bot.SendFile(path, to)
+
                 if option == '0':
                     print('Desconectandome')
                     bot.logOut()

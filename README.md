@@ -102,12 +102,11 @@ For this projet you will need the following requisites:
      - This will ask you for your new status, you can put what ever you want
      - This will ask you for your new status, you can put what ever you want
 - Get notifications.  
-   - Press number 6
-     - This will ask you for the jid of the user and will print everyone who has that jid.
-     - It is not necessary to write the complete jid to find the user.
-     - It is not necessary to write the server extension "@redes2020.xyz"
+   - This will happen in the next cases:
+     - If you receive a private message
+     - If someone joins to a room that you are in
+     - If someone says your name in a room message
 - Send .png files.  
-   - Press number 6
-     - This will ask you for the jid of the user and will print everyone who has that jid.
-     - It is not necessary to write the complete jid to find the user.
-     - It is not necessary to write the server extension "@redes2020.xyz"
+   - Press number 11
+     - You will send the png image that is load in this repository called **a.png**
+   -You can receive png files too.

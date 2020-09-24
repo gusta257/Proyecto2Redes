@@ -23,7 +23,7 @@ For this projet you will need the following requisites:
        python ./chat
        
  ## Functionalities
- After running the .py file yo will face a menu with 3 options
+ After running the .py file you will face a menu with 3 options
  1. Sign up
  2. Log in
  0. Exit
@@ -31,21 +31,83 @@ For this projet you will need the following requisites:
 - Register a new account.
    - Press number 1 
      - This will display you an input for yor new user(id), it is not necessary to write the server extension "@redes2020.xyz" because it is already in the input,
-     - After that you have to write your password.
+     - After that you have to write your new password.
      - If everything is ok you should see a message like this *Account created for user@redes2020.xyz!*
-     - If not you will see "Could not register account", you should try with another user and password
-- Log in.  
-
+     - If not you will see *Could not register account*, you should try with another user and password
+- Log in. 
+   - Press number 2 
+     - This will display you an input for yor user(id), it is not necessary to write the server extension "@redes2020.xyz" because it is already in the input,
+     - After that you have to write your password.
+     - If everything is ok you should see the logged in menu
+     
+ After logging in you will see a new menu: 
+ 
+0. Log out
+1. Establish presence
+2. Add a new contact.  
+3. Delete my account.
+4. Send message to a user.  
+5. Show all users
+6. Show a specific user.
+7. Join to a room.
+8. Send messages in a room.
+9. Show your contacts
+10. Create a room.
+11. Send .png files.  
+ 
 - Log out.  
-- Delete account.  
+   - Press number 0 
+     - This will return you to the previous menu.
+- Delete my account.  
+   - Press number 3
+     - This will return you to the previous menu and delete your account.
 - Show all users.
+   - Press number 5
+     - This will print you all the users registered in redes2020.xyz.
 - Show your contacts
+   - Press number 9
+     - This will print you all the users that you have in your roster and their status.
 - Add a new contact.  
-- Show a specific user.  
+   - Press number 2
+     - This will ask you for the jid of the user.
+     - It is not necessary to write the server extension "@redes2020.xyz"
+- Show a specific user. 
+   - Press number 6
+     - This will ask you for the jid of the user and will print everyone who has that jid.
+     - It is not necessary to write the complete jid to find the user.
+     - It is not necessary to write the server extension "@redes2020.xyz"
 - Send message to a user.  
+   - Press number 4
+     - This will ask you for the jid of the user and will print everyone who has that jid.
+     - It is not necessary to write the server extension "@redes2020.xyz"
+     - Next you have to send your message
 - Create a room.
+   - Press number 10
+     - This will ask you for the name of the new room.
+     - It is not necessary to write the server extension "@conference.redes2020.xyz".
+     - Next you have to assign you you nickname.
+     - You will be the owner of the group.
 - Join to a room.
+   - Press number 7
+     - This will ask you for the room's name
+     - It is not necessary to write the server extension "@conference.redes2020.xyz".
+     - Next you have to assign you you nickname.
 - Send messages in a room.
+   - Press number 8
+     - This will ask you for the room's name
+     - It is not necessary to write the server extension "@conference.redes2020.xyz".
+     - Next you have to send your message
 - Establish presence.  
+   - Press number 1
+     - This will ask you for your new status, you can put what ever you want
+     - This will ask you for your new status, you can put what ever you want
 - Get notifications.  
-- Enviar / recibir archivos.  
+   - Press number 6
+     - This will ask you for the jid of the user and will print everyone who has that jid.
+     - It is not necessary to write the complete jid to find the user.
+     - It is not necessary to write the server extension "@redes2020.xyz"
+- Send .png files.  
+   - Press number 6
+     - This will ask you for the jid of the user and will print everyone who has that jid.
+     - It is not necessary to write the complete jid to find the user.
+     - It is not necessary to write the server extension "@redes2020.xyz"

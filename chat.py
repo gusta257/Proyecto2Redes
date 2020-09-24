@@ -81,7 +81,7 @@ class Cliente(ClientXMPP):
             index2 = who.find('@conference')
             print("\n")
             print("*************************NOTIFICACION**************************")
-            print(presence['muc']['nick'],"ha entrado al grupo",who[:index2])
+            print(presence['muc']['nick'],"esta en el grupo",who[:index2])
             print("***************************************************************")
         
 
@@ -171,14 +171,14 @@ class Cliente(ClientXMPP):
         return success
 
     def Unregister(self):
-        print(self.boundjid.user)
+        
         iq = self.make_iq_set(ito='redes2020.xyz', ifrom=self.boundjid.user)
         item = ET.fromstring("<query xmlns='jabber:iq:register'> \
                                 <remove/> \
                               </query>")
         iq.append(item) 
         res = iq.send()
-        print(res)
+        print(res['type'])
 
     
     def misUsers(self):
@@ -352,6 +352,7 @@ if __name__ == '__main__':
     opcion = '9'
     
     while opcion != '0':
+        vive  = True
         print("1. Crear Cuenta.  2. Iniciar sesion. 0. Salir")
         opcion = input("Ingrese la opcion: ")
 
@@ -375,7 +376,7 @@ if __name__ == '__main__':
                 print("Hice login")
             
             while option != '0':
-                print("0. Desconectarse\n1. Agregar nuevo Status\n2. Agregar un usuario a los contactos.\n3. Eliminar mi cuenta.\n4. Mandar mensaje.\n5. Mostrar todos los usuarios registrados\n6. Buscar un usuario en especifico\n7. Ingresar a room\n8. Mandar mensaje grupal\n9. Mostrar usuarios agregados\n10. Crear un room\n11.Manda una imagen png")
+                print("0. Desconectarse\n1. Agregar nuevo Status\n2. Agregar un usuario a los contactos.\n3. Eliminar mi cuenta.\n4. Mandar mensaje.\n5. Mostrar todos los usuarios registrados\n6. Buscar un usuario en especifico\n7. Ingresar a room\n8. Mandar mensaje grupal\n9. Mostrar usuarios agregados\n10. Crear un room\n11. Manda una imagen png")
 
                 option = input("Ingrese la opcion: ")
                 if option == '2':
@@ -385,6 +386,7 @@ if __name__ == '__main__':
                 if option == '3':
                     bot.Unregister()
                     option = '0' 
+                    vive == False
                 if option == '4':
                     user  = input("Ingrese el Ingrese el jid: ")
                     msj = input("Ingrese el Ingrese el mensaje: ")
@@ -428,6 +430,9 @@ if __name__ == '__main__':
                     print('Desconectandome')
                     bot.logOut()
                     bot.disconnect()
+                if option == '0' and vive == False:
+                    print("Cuenta eliminada")
+
         if opcion == '0':
             print('Saliendo del programa')
 

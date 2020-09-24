@@ -3,6 +3,9 @@ from sleekxmpp.exceptions import IqError, IqTimeout
 from sleekxmpp.xmlstream.stanzabase import ET, ElementBase
 import threading
 from sleekxmpp.plugins.xep_0096 import stanza, File
+import os
+import base64
+import random
 
 class Registro(ClientXMPP):
 
@@ -98,15 +101,20 @@ class Cliente(ClientXMPP):
         self.send_message(mto=jid+"@redes2020.xyz", mbody=message, mtype='chat')
 
     def SendMessageRoom(self, room, message):
-        self.send_message(mto=room+"@conference.redes2020.xyz", mbody=message, mtype='groupchat')
-    
+        room = room.replace(" ", "")
+        try:
+            self.send_message(mto=room+"@conference.redes2020.xyz", mbody=message, mtype='groupchat')
+        except:
+            print("ERROR")
+
+
     def logOut(self):
             self.show = 'dnd'
             self.send_presence(pshow=self.show, pstatus = "Desconectado")
 
     def message(self, msg):
         
-        if(msg['type']=='chat'):
+        if(msg['type']=='chat' and msg['subject'] !='send_file'):
             print("\n")
             print("*"*40)
             who = str(msg['from'])
@@ -132,8 +140,19 @@ class Cliente(ClientXMPP):
                 print("De:",who[index+1:])
                 print("Mensaje:",msg['body'])
                 print("*"*40)
-
-        
+        elif(msg['subject'] =='send_file'):
+            print("\n")
+            print("*"*50)
+            print("RECIBISTE UNA IMAGEN ABRELA EN TU CARPETA")
+            print("*"*50)
+            
+            img_body = msg['body']
+            file_ = img_body.encode('utf-8')
+            file_ = base64.decodebytes(file_)
+            rand = random.randint(1,50000)
+            name = "redes"+str(rand)+".png"
+            with open(name,"wb") as f:
+                f.write(file_)
         
 
     def Login(self):
@@ -168,7 +187,7 @@ class Cliente(ClientXMPP):
         self.send_presence()
 
 
-        print('Waiting for presence updates...\n')
+        print('Obteniendo Informacion...\n')
         self.presences_received.wait(5)
 
         print('  Amigos de %s' % self.boundjid.bare)
@@ -178,20 +197,26 @@ class Cliente(ClientXMPP):
             for jid in groups[group]:
                 sub = self.client_roster[jid]['subscription']
                 name = self.client_roster[jid]['name']
-                if (jid != self.yo):
+                if (jid != self.yo and "@conference.redes2020.xyz" not in str(jid)):
                     print(' * User: %s' % (jid))
 
                 connections = self.client_roster.presence(jid)
-                for res, pres in connections.items():
-                    show = self.show
-                    if pres['show'] and jid != self.yo:
-                        show = pres['show']
-                    if jid != self.yo:
-                        print(' - Estado: (%s)' % (show))
-                    if pres['status'] and jid != self.yo and len(str(pres['status'])) > 0:
-                        print(' - Status: %s' % pres['status'])
+
+                if len(connections.items()) ==0:
+                    print(' - Estado: Offline')
+                    print(' - Status: Offline')
+                else:
+
+                    for res, pres in connections.items():
+                        show = self.show
+                        if pres['show'] and jid != self.yo and "@conference.redes2020.xyz" not in str(jid):
+                            show = pres['show']
+                        if jid != self.yo and "@conference.redes2020.xyz" not in str(jid):
+                            print(' - Estado: (%s)' % (show))
+                        if pres['status'] and jid != self.yo and len(str(pres['status'])) > 0 and "@conference.redes2020.xyz" not in str(jid):
+                            print(' - Status: %s' % pres['status'])
                 print('-' * 72)
-                print
+               
                     
 
 
@@ -256,7 +281,7 @@ class Cliente(ClientXMPP):
         for i in res.findall('.//{jabber:x:data}value'):
             cont += 1
             txt = ''
-            if i.text != None:
+            if cont ==2:
                 temp.append(i.text)
 
             if cont == 4:
@@ -265,6 +290,12 @@ class Cliente(ClientXMPP):
                 temp = []
 
         return data
+
+    def SendFile(self, path, to):
+        with open(path, 'rb') as img:
+            file_ = base64.b64encode(img.read()).decode('utf-8')
+        self.send_message(mto = to+"@redes2020.xyz", mbody=file_, msubject='send_file', mtype='chat')
+
 
     def GetUser(self, username):
         iq = self.Iq()
@@ -294,7 +325,7 @@ class Cliente(ClientXMPP):
         for i in res.findall('.//{jabber:x:data}value'):
             cont += 1
             txt = ''
-            if i.text != None:
+            if cont == 2:
                 temp.append(i.text)
 
             if cont == 4:
@@ -314,13 +345,13 @@ if __name__ == '__main__':
     domain = '@redes2020.xyz'
     username = ''
     password = ''
-    opcion = 9
+    opcion = '9'
     
-    while opcion != 0:
+    while opcion != '0':
         print("1. Crear Cuenta.  2. Iniciar sesion. 0. Salir")
-        opcion = int(input("Ingrese la opcion: "))
+        opcion = input("Ingrese la opcion: ")
 
-        if opcion == 1:
+        if opcion == '1':
             username = input("Ingrese el usuario: ")
             password = input("Ingrese la contraseña: ")
             xmpp = Registro(username + domain, password)
@@ -329,8 +360,8 @@ if __name__ == '__main__':
                 print("Done")
             else:
                 print("Unable to connect.")
-        if opcion == 2:
-            option = 100
+        if opcion == '2':
+            option = '100'
             username = input("Ingrese el usuario: ")
             password = input("Ingrese la contraseña: ")
 
@@ -339,57 +370,59 @@ if __name__ == '__main__':
             if bot.Login():
                 print("Hice login")
             
-            while option != 0:
+            while option != '0':
                 print("0. Desconectarse\n1. Agregar nuevo Status\n2. Agregar un usuario a los contactos.\n3. Eliminar mi cuenta.\n4. Mandar mensaje.\n5. Mostrar todos los usuarios registrados\n6. Buscar un usuario en especifico\n7. Ingresar a room\n8. Mandar mensaje grupal\n9. Mostrar usuarios agregados\n10. Crear un room")
 
-                option = int(input("Ingrese la opcion: "))
-                if option == 2:
+                option = input("Ingrese la opcion: ")
+                if option == '2':
                     print("opcion 2")
                     user = input("Ingrese el Ingrese el jid:")
                     bot.AddUser(user)
-                if option == 3:
+                if option == '3':
                     bot.Unregister()
-                    option = 0 
-                if option == 4:
+                    option = '0' 
+                if option == '4':
                     user  = input("Ingrese el Ingrese el jid: ")
                     msj = input("Ingrese el Ingrese el mensaje: ")
                     bot.SendMessageTo(user,msj)
-                if option == 5:
+                if option == '5':
                     server_users = bot.GetUsers()
                     print("USUARIOS REGISTRADOS EN EL SERVER: ")
                     for i in server_users:
-                        print ("*",i)
+                        print ("*",i[0])
 
-                if option == 6:
+                if option == '6':
                     specific_user = input("Ingrese el usuario a buscar: ")
                     user = bot.GetUser(specific_user)
                     for i in user:
                         print ("*",i[0])
-                if option == 7:
+                if option == '7':
                     cuarto = input("Ingrese el room a ingresar: ")
                     nick = input("Ingrese su nickname para este room: ")
                     bot.Rooms(cuarto, nick)
-                if option ==8:
+                if option =='8':
                     cuarto = input("Ingrese el room a escribir: ")
                     mensaje = input("Ingrese mensaje: ")
                     bot.SendMessageRoom(cuarto, mensaje)
-                if option ==9:
+                if option =='9':
                     bot.misUsers()
-                if option==1:
+                if option=='1':
                     status = input("Agrega tu nuevo status: ")
                     show = input('Ingresa tu show:\nchat\naway\nxa\ndnd\n')
                     bot.mandarPresence(show,status)
-                if option==10:
+                if option=='10':
                     cuarto = input("Ingrese el nombre del nuevo room: ")
                     nick = input("Ingrese su nickname para este room: ")
                     bot.CreateRooms(cuarto, nick)
-                if option == 0:
+                if option == '11':
+                    to = input("Ingrese el jid:")
+                    path = os.path.join(os.path.expanduser('~'), 'Documents', 'python', 'a.png')
+                    bot.SendFile(path, to)
+                if option == '0':
                     print('Desconectandome')
                     bot.logOut()
                     bot.disconnect()
-
-
-        if opcion == 0:
+        if opcion == '0':
             print('Saliendo del programa')
 
             

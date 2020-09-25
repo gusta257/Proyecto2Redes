@@ -120,6 +120,6 @@ For this projet you will need the following requisites:
 - https://xmpp.org/extensions/xep-0045.html#createroom
 - XMPP - The definitive guide
 - Dieter de Wit
-- Vinicio Paz
+- Vinicio Paz 
 And every friend who had the same problem as me and helped me to fix it
      
